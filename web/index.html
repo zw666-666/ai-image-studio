@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArtGen 生图工具</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="icon_source.png" alt="ArtGen" />
+        <div>
+          <div class="brand-name">ArtGen</div>
+          <div class="brand-subtitle">图片创作工作台</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-tab="generate">
+          <span class="nav-icon" aria-hidden="true">✦</span><span>基础生图</span>
+        </button>
+        <button class="nav-item" data-tab="prompt">
+          <span class="nav-icon" aria-hidden="true">⌁</span><span>提示词工坊</span>
+        </button>
+        <button class="nav-item" data-tab="gallery">
+          <span class="nav-icon" aria-hidden="true">▦</span><span>历史图库</span>
+        </button>
+        <button class="nav-item" data-tab="batch">
+          <span class="nav-icon" aria-hidden="true">⚡</span><span>批量生成</span>
+        </button>
+        <button class="nav-item" data-tab="edit">
+          <span class="nav-icon" aria-hidden="true">✎</span><span>图生图编辑</span>
+        </button>
+      </nav>
+      <div class="sidebar-foot">
+        <div id="apiStatus" class="api-status"><span></span>就绪</div>
+      </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="content">
+      <div class="mobile-topbar">
+        <img src="icon_source.png" alt="" />
+        <div><strong>ArtGen</strong><span>图片创作工作台</span></div>
+        <div id="mobileApiStatus" class="mobile-api-status" aria-label="服务已就绪"></div>
+      </div>
+      <!-- 基础生图 -->
+      <section id="tab-generate" class="tab tab-generate active">
+        <header class="tab-head tab-head-generate">
+          <div>
+            <span class="section-kicker">开始创作</span>
+            <h1>把想象，变成画面</h1>
+            <p>用一句清晰的描述，生成属于你的第一张图。</p>
+          </div>
+          <div class="head-art" aria-hidden="true"><span></span><i></i><b></b></div>
+        </header>
+        <div class="panel">
+          <label class="field">
+            <span class="field-label">提示词</span>
+            <textarea id="genPrompt" class="textarea" rows="4" placeholder="描述你想画的内容，例如：一只戴着雷朋墨镜的柴犬，赛博朋克风格，高清"></textarea>
+          </label>
+          <div class="row">
+            <label class="field">
+              <span class="field-label">模型</span>
+              <select id="genModel" class="select"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">画质</span>
+              <select id="genQuality" class="select"></select>
+            </label>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <span class="field-label">画面比例</span>
+            <div id="genSizes" class="segmented"></div>
+          </div>
+          <div class="actions">
+            <button id="genBtn" class="btn primary">生成图片</button>
+            <button id="genClearBtn" class="btn">清空</button>
+          </div>
+        </div>
+        <div id="genResult" class="result hidden">
+          <div class="result-img-wrap">
+            <img id="genImg" class="result-img hidden" alt="生成结果" />
+            <div id="genSkeleton" class="skeleton">
+              <div class="skeleton-shimmer"></div>
+              <div class="skeleton-spinner"></div>
+              <div id="genSkeletonText" class="skeleton-text">正在生成图片…</div>
+            </div>
+          </div>
+          <div class="result-meta">
+            <div id="genMeta" class="meta-text"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 提示词工坊 -->
+      <section id="tab-prompt" class="tab">
+        <header class="tab-head tab-head-prompt">
+          <div>
+            <span class="section-kicker">视觉拆解</span>
+            <h1>把图片，拆成好提示词</h1>
+            <p>上传参考图，自动提炼主体、材质、构图、光线和风格，再直接复制去生图。</p>
+          </div>
+          <div class="prompt-orbit" aria-hidden="true"><span></span><i></i><b></b></div>
+        </header>
+        <div class="prompt-studio">
+          <div class="panel prompt-source-panel">
+            <div class="studio-label"><span class="studio-index">01</span><div><strong>放入参考图</strong><small>图片是唯一事实来源</small></div></div>
+            <div class="prompt-pick-actions">
+              <button id="promptPickBtn" class="btn primary">选择图片</button>
+              <button id="promptClearBtn" class="btn" disabled>移除</button>
+            </div>
+            <div id="promptPreviewWrap" class="prompt-preview empty">
+              <div class="prompt-empty-mark">+</div>
+              <strong>还没有参考图</strong>
+              <span>支持产品、人物、场景和风格参考</span>
+              <img id="promptPreview" alt="提示词参考图预览" />
+            </div>
+            <label class="field prompt-option">
+              <span class="field-label">提示词方向</span>
+              <select id="promptType" class="select">
+                <option value="通用提示词">通用提示词</option>
+                <option value="产品与电商摄影">产品与电商摄影</option>
+                <option value="人物与肖像摄影">人物与肖像摄影</option>
+                <option value="场景与氛围">场景与氛围</option>
+                <option value="风格与材质拆解">风格与材质拆解</option>
+              </select>
+            </label>
+          </div>
+          <div class="panel prompt-result-panel">
+            <div class="studio-label"><span class="studio-index warm">02</span><div><strong>生成专业提示词</strong><small>先结构化，再去重和校验</small></div></div>
+            <div class="prompt-result-topline"><span id="promptStatus" class="prompt-status">等待上传图片</span><button id="promptCopyBtn" class="btn" disabled>复制提示词</button></div>
+            <textarea id="promptOutput" class="textarea prompt-output" readonly placeholder="生成结果会显示在这里…"></textarea>
+            <div class="prompt-structure" aria-label="提示词结构"><span>主体</span><span>材质</span><span>构图</span><span>光线</span><span>风格</span><span>镜头</span></div>
+            <button id="promptGenerateBtn" class="btn primary prompt-generate" disabled>生成专业提示词</button>
+            <p class="field-hint">生成结果会尽量只描述画面可见信息，避免凭空补充品牌、参数和不存在的细节。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 历史图库 -->
+      <section id="tab-gallery" class="tab">
+        <header class="tab-head">
+          <h1>历史图库</h1>
+          <p>回看、筛选、删除以往生成的图片。点击图片可放大查看。</p>
+        </header>
+        <div class="toolbar">
+          <input id="galKeyword" class="input" placeholder="搜索提示词…" />
+          <select id="galModel" class="select">
+            <option value="">全部模型</option>
+          </select>
+          <select id="galKind" class="select">
+            <option value="">全部类型</option>
+            <option value="text2img">文生图</option>
+            <option value="img2img">图生图</option>
+          </select>
+          <button id="galRefresh" class="btn">刷新</button>
+        </div>
+        <div id="galGrid" class="gallery-grid"></div>
+        <div class="loadmore-wrap">
+          <button id="galMore" class="btn">加载更多</button>
+          <span id="galCount" class="muted"></span>
+        </div>
+      </section>
+
+      <!-- 批量生成 -->
+      <section id="tab-batch" class="tab">
+        <header class="tab-head">
+          <h1>批量生成</h1>
+          <p>设置并发数量，每个框可独立选择模型、比例与画质，分别生成，互不影响。</p>
+        </header>
+        <div class="panel">
+          <div class="row">
+            <label class="field" style="max-width: 220px;">
+              <span class="field-label">并发生成数</span>
+              <select id="batchConcurrency" class="select">
+                <option value="1">1 个</option>
+                <option value="2">2 个</option>
+                <option value="3" selected>3 个</option>
+                <option value="4">4 个</option>
+                <option value="5">5 个</option>
+                <option value="6">6 个</option>
+              </select>
+            </label>
+          </div>
+          <div id="batchCards" class="batch-cards"></div>
+          <div class="actions">
+            <button id="batchAllBtn" class="btn primary">全部生成</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 图生图编辑 -->
+      <section id="tab-edit" class="tab">
+        <header class="tab-head">
+          <h1>图生图编辑</h1>
+          <p>选择一张图片，描述你要做的修改，生成新图。</p>
+        </header>
+        <div class="panel">
+          <div class="row">
+            <div class="field">
+              <span class="field-label">源图片</span>
+              <div class="src-row">
+                <button id="editPickBtn" class="btn">选择图片…</button>
+                <button id="editPickFromGal" class="btn">从图库选择</button>
+              </div>
+              <div id="editPreviewWrap" class="edit-preview hidden">
+                <div class="preview-box">
+                  <img id="editPreview" alt="源图预览" />
+                  <button id="editPreviewClear" class="preview-clear" title="移除图片">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">编辑描述</span>
+              <textarea id="editPrompt" class="textarea" rows="4" placeholder="例如：把背景改成纯蓝色"></textarea>
+              <label class="field" style="margin-top:12px">
+                <span class="field-label">模型</span>
+                <select id="editModel" class="select"></select>
+              </label>
+            </div>
+          </div>
+          <div class="row" style="margin-top:16px">
+            <div class="field">
+              <span class="field-label">参考图（可选 · 风格/特征参考）</span>
+              <div class="src-row">
+                <button id="refPickBtn" class="btn">选择参考图…</button>
+              </div>
+              <div id="refPreviewWrap" class="edit-preview hidden">
+                <div class="preview-box">
+                  <img id="refPreview" alt="参考图预览" />
+                  <button id="refPreviewClear" class="preview-clear" title="移除图片">✕</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">输出比例</span>
+              <select id="editSize" class="select"></select>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="editBtn" class="btn primary" disabled>开始编辑</button>
+            <button id="editClearBtn" class="btn">清空</button>
+          </div>
+        </div>
+        <div id="editResult" class="result hidden">
+          <div class="result-img-wrap">
+            <img id="editImg" class="result-img hidden" alt="编辑结果" />
+            <div id="editSkeleton" class="skeleton">
+              <div class="skeleton-shimmer"></div>
+              <div class="skeleton-spinner"></div>
+              <div id="editSkeletonText" class="skeleton-text">正在编辑图片…</div>
+            </div>
+          </div>
+          <div class="result-meta">
+            <div id="editMeta" class="meta-text"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 全屏查看原图 -->
+  <div id="lightbox" class="lightbox hidden">
+    <div class="lightbox-body">
+      <div id="lightboxStage" class="lightbox-stage">
+        <img id="lightboxImg" alt="原图" draggable="false" />
+      </div>
+      <div class="lightbox-info">
+        <div id="lightboxPrompt" class="lightbox-prompt"></div>
+        <div class="lightbox-hint">点击图片放大 · 滚轮缩放 · 拖动平移 · 点击空白关闭</div>
+        <div class="lightbox-actions">
+          <button id="lightboxDelete" class="btn danger">删除</button>
+          <button id="lightboxUseEdit" class="btn">用于编辑</button>
+          <button id="lightboxOpenFolder" class="btn">在文件夹中打开</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

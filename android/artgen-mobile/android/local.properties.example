@@ -1,0 +1,7 @@
+# Copy this file to local.properties and fill in your own values.
+# Keep local.properties untracked. SDK locations vary by machine.
+# sdk.dir=C:/Users/your-user/AppData/Local/Android/Sdk
+ARTGEN_IMAGE_API_KEY=
+ARTGEN_VISION_API_KEY=
+ARTGEN_VISION_MODEL=
+ARTGEN_VISION_BASE_URL=

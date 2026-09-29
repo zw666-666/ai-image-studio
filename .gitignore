@@ -1,0 +1,51 @@
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Local credentials and machine-specific config
+.env
+.env.*
+!.env.example
+**/local.properties
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# Local databases, logs, and generated user data
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+/ArtGen/
+artgen_data/
+user_data/
+gallery/
+output/
+outputs/
+windows_acceptance*.json
+
+# Generated builds and packages
+/build/
+/dist/
+/发布/
+**/build/
+**/.gradle/
+**/node_modules/
+*.apk
+*.aab
+*.exe
+*.msi
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
